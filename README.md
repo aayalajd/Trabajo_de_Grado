@@ -1,4 +1,5 @@
 [README.txt](https://github.com/user-attachments/files/24697300/README.txt)
+
 Este repositorio contiene los scripts empleados en el trabajado de grado titulado como “Evaluación de la transformación del paisaje del Complejo de Páramos Tota–Bijagual–Mamapacha (Boyacá, Colombia) por actividades agrícolas durante el periodo 2004–2024”.
 
 La investigación analizó los cambios espacio-temporales de las coberturas del suelo del complejo de páramos mediante el uso de imágenes satelitales Landsat y herramientas de análisis geoespacial, como métricas de paisaje e índices de conectividad estructural. También se hizo la evaluación de los procesos de fragmentación, transformación de coberturas naturales y expansión agrícola, así como sus implicaciones sobre la integridad ecológica de los ecosistemas altoandinos. Esto con el fin de priorizar áreas del Complejo para procesos de restauración ecológica a partir de datos espaciales y análisis a nivel de paisaje.
