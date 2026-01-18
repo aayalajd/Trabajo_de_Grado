@@ -1,0 +1,41 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var CPTBM = ee.FeatureCollection("projects/ee-ayala10/assets/CPTBM"),
+    geometry = 
+    /* color: #ffc82d */
+    /* shown: false */
+    /* displayProperties: [
+      {
+        "type": "rectangle"
+      }
+    ] */
+    ee.Geometry.Polygon(
+        [[[-73.41937792968751, 5.810710421610082],
+          [-73.41937792968751, 5.1080452261914875],
+          [-72.59814990234376, 5.1080452261914875],
+          [-72.59814990234376, 5.810710421610082]]], null, false);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+Map.addLayer (CPTBM, {color: "red"}, "CPTBM");
+
+var dataset = ee.ImageCollection('LANDSAT/LE07/C02/T1_TOA')
+    .filterDate('2003-01-01', '2003-04-01')
+    .filterMetadata("CLOUD_COVER","less_than",20)
+    .filterBounds(geometry);
+    
+var image = ee.Image(dataset.mean());
+
+var bands = ['B3', 'B2', 'B1'];
+
+var clipped = image.clip(geometry)
+
+Map.addLayer(clipped, {bands: bands, min:0.0, max:0.5, gamma:1.2}, "clipped");
+Map.setCenter ( -72.9195,5.5497,9)
+
+Export.image.toDrive({
+  image:clipped.select(bands), 
+  description:'Image_2003', 
+  folder:'GEE_export_LAND', 
+  fileNamePrefix:'Image_2003', 
+  crs: "EPSG:4326",
+  region: geometry,
+  scale: 30
+  })

@@ -1,0 +1,66 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var CPTBM = ee.FeatureCollection("projects/ee-ayala10/assets/CPTBM"),
+    geometry = 
+    /* color: #98ff00 */
+    /* shown: false */
+    /* displayProperties: [
+      {
+        "type": "rectangle"
+      }
+    ] */
+    ee.Geometry.Polygon(
+        [[[-73.41547987538223, 5.837024743973984],
+          [-73.41547987538223, 5.107034283941871],
+          [-72.57777235585098, 5.107034283941871],
+          [-72.57777235585098, 5.837024743973984]]], null, false);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+Map.addLayer (CPTBM, {color: "red"}, "CPTBM");
+
+// Función para enmascarar nubes y sombras usando el QA_PIXEL
+function maskClouds(image) {
+  var QA_PIXEL = image.select('QA_PIXEL');
+  
+  // Bits de nubes (bit 3) y sombras de nubes (bit 4)
+  var cloudBitMask = 1 << 3;
+  var shadowBitMask = 1 << 4;
+
+  var mask = QA_PIXEL.bitwiseAnd(cloudBitMask).eq(0)
+              .and(QA_PIXEL.bitwiseAnd(shadowBitMask).eq(0));
+
+  return image.updateMask(mask);
+}
+
+// Colección Landsat 8 (Colección 2 Tier 1 TOA)
+var dataset = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
+    .filterDate('2023-01-01', '2024-04-01')  // Ampliamos a 3 años
+    .filterBounds(geometry)
+    .map(maskClouds);  // Aplicamos máscara de nubes
+
+// Crear mosaico de mediana para minimizar nubes
+var composite = dataset.median().clip(geometry);
+
+// Definir bandas RGB y parámetros de visualización
+var bands = ['B4', 'B3', 'B2'];
+var visParams = {
+  bands: bands,
+  min: 0.03,
+  max: 0.2,
+  gamma: 1.3
+};
+
+// Añadir al mapa
+Map.addLayer(composite, visParams, "Mosaico Landsat 8 TOA");
+
+// Centrar el mapa
+Map.centerObject(geometry, 9);
+
+// Exportar a Google Drive (opcional)
+Export.image.toDrive({
+  image: composite.select(bands),
+  description: 'Mosaico_Landsat8_2014_2016',
+  folder: 'GEE_export_LAND',
+  fileNamePrefix: 'Mosaico_Landsat8_2014_2016',
+  crs: 'EPSG:4326',
+  region: geometry,
+  scale: 30
+});

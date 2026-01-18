@@ -1,0 +1,41 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var CPTBM = ee.FeatureCollection("projects/ee-ayala10/assets/CPTBM"),
+    geometry = 
+    /* color: #98ff00 */
+    /* shown: false */
+    /* displayProperties: [
+      {
+        "type": "rectangle"
+      }
+    ] */
+    ee.Geometry.Polygon(
+        [[[-73.41547987538223, 5.837024743973984],
+          [-73.41547987538223, 5.107034283941871],
+          [-72.57777235585098, 5.107034283941871],
+          [-72.57777235585098, 5.837024743973984]]], null, false);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+Map.addLayer (CPTBM, {color: "red"}, "CPTBM");
+
+var dataset = ee.ImageCollection('LANDSAT/LC08/C02/T1')
+    .filterDate('2014-03-01', '2014-05-01')
+    .filterMetadata("CLOUD_COVER","less_than",20)
+    .filterBounds(geometry);
+    
+var image = ee.Image(dataset.mean());
+
+var bands = ['B4', 'B3', 'B2'];
+
+var clipped = image.clip(geometry)
+
+Map.addLayer(clipped, {bands: bands, min:0.0, max:30000.0}, "clipped");
+Map.setCenter ( -72.9195,5.5497,9)
+
+Export.image.toDrive({
+  image:clipped.select(bands), 
+  description:'Image_2014', 
+  folder:'GEE_export_LAND', 
+  fileNamePrefix:'Image_2014', 
+  crs: "EPSG:4326",
+  region: geometry,
+  scale: 30
+  })
